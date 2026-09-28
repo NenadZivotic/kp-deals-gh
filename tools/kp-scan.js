@@ -155,6 +155,16 @@ const PART_WORDS = [
   "led osvetljenje",
   "sajla",
   "kaciga",
+  "zaslon",
+  "remen",
+  "membrana",
+  "nalepnic",
+  "stiker",
+  "igla za",
+  "glava za",
+  "pribor",
+  "korpus",
+  "krilo za",
 ];
 const DIGITAL_WORDS = [
   "gift card",

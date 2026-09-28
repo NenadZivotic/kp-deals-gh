@@ -19,8 +19,8 @@
       "keywords": ["thinkpad", "macbook"],
       "categoryId": 1221,
       "modelPatterns": [
-        "thinkpad ?[a-z]?\\d{3}[a-z]*",
-        "macbook ?(air|pro)? ?m?\\d?"
+        "thinkpad ?[a-z]{0,3}\\d{1,4}[a-z]*",
+        "macbook ?(air|pro)? ?m?\\d{0,2}"
       ],
       "rule": { "belowMedianPct": 0.5 },
       "goodConditionsOnly": true

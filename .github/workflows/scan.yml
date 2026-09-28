@@ -2,7 +2,7 @@ name: KP Deals Scan
 
 on:
   schedule:
-    - cron: '0 */6 * * *'   # svakih 6 sati UTC
+    - cron: "0 */6 * * *" # svakih 6 sati UTC
   workflow_dispatch:
 
 jobs:
@@ -15,12 +15,14 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install scanner deps
         run: npm install --prefix tools
 
       - name: Run KP scan
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: node tools/kp-scan.js
         continue-on-error: true
 
@@ -45,5 +47,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "kp scan update [${{ github.run_id }}]"
-          file_pattern: 'research/*'
+          file_pattern: "research/*"
           skip_checkout: false

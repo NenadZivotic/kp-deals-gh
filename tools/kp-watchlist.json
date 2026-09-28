@@ -3,6 +3,7 @@
   "eurToRsd": 117,
   "delayBetweenRequestsMs": [6000, 12000],
   "maxFlagsPerWatch": 8,
+  "judgeMaxPerScan": 12,
   "watches": [
     {
       "name": "iPhone",

@@ -598,6 +598,7 @@ async function main() {
         // description verification — headline price is often bait; real prices live in the ad body
         try {
           const desc = await adDescription(f.url);
+          if (f) f._desc = desc.slice(0, 2000);
           // re-classify with the description: title "RTX 3070" + body
           // "prodajem ventilator sa 3070" is a part, not a deal.
           const dKind = classifyItem(f.name, desc, w);
@@ -681,6 +682,18 @@ async function main() {
       (n, g) => n + g.length,
       0,
     );
+
+    // optional semantic verdicts (kp-judge.js) — silent no-op without a key
+    try {
+      const judged = await require(P.join(__dirname, "kp-judge.js")).judge(
+        keep,
+        { max: cfg.judgeMaxPerScan ?? 12 },
+      );
+      if (judged) report.judged = judged;
+    } catch (e) {
+      console.error("[kp] judge failed:", e.message);
+    }
+    for (const f of keep) delete f._desc; // internal to judging, not the report
 
     let md = FS.existsSync(DEALS_FILE)
       ? FS.readFileSync(DEALS_FILE, "utf8")

@@ -270,28 +270,55 @@ const stripHtml = (s) =>
     .replace(/\s+/g, " ")
     .trim();
 
-async function adDescription(url) {
-  const d = await fetchPage(url);
-  const byId =
-    d.props &&
-    d.props.initialReduxState &&
-    d.props.initialReduxState.ad &&
-    d.props.initialReduxState.ad.byId;
-  const ad = byId && byId[Object.keys(byId)[0]];
-  return ad ? stripHtml(ad.description) : "";
+// ---- session / anti-stripping ----------------------------------------------
+// From datacenter IPs (GitHub Actions, Apify) KP serves a stripped page with no
+// initialReduxState.search.byId until the request carries the session cookie
+// that a first response sets. Warm the jar once, retry twice, then refresh.
+const KP_ORIGIN = "https://www.kupujemprodajem.com";
+const cookieJar = new Map();
+let cookieGeneration = 0;
+
+const cookieHeader = () =>
+  [...cookieJar.entries()].map(([k, v]) => `${k}=${v}`).join("; ");
+
+function ingestSetCookie(headers) {
+  const all =
+    typeof headers.getSetCookie === "function"
+      ? headers.getSetCookie()
+      : (headers.get("set-cookie") || "").split(/,(?=\s*[^;,\s]+=)/);
+  for (const raw of all) {
+    const pair = String(raw).split(";")[0];
+    const eq = pair.indexOf("=");
+    if (eq <= 0) continue;
+    const name = pair.slice(0, eq).trim();
+    const value = pair.slice(eq + 1).trim();
+    if (value) cookieJar.set(name, value);
+    else cookieJar.delete(name);
+  }
 }
 
-async function fetchPage(url) {
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": UA[Math.floor(Math.random() * UA.length)],
-      Accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,*/*;q=0.8",
-      "Accept-Language": "sr-RS,sr;q=0.9,en;q=0.8",
-      Referer: "https://www.kupujemprodajem.com/",
-    },
-    redirect: "follow",
-  });
+async function fetchHtml(url) {
+  const generation = cookieGeneration;
+  const headers = {
+    "User-Agent": UA[Math.floor(Math.random() * UA.length)],
+    Accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,*/*;q=0.8",
+    "Accept-Language": "sr-RS,sr;q=0.9,en;q=0.8",
+    Referer: KP_ORIGIN + "/",
+    "Sec-Ch-Ua":
+      '"Chromium";v="131", "Google Chrome";v="131", "Not?A_Brand";v="24"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"Windows"',
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1",
+  };
+  const cookie = cookieHeader();
+  if (cookie) headers.Cookie = cookie;
+  const res = await fetch(url, { headers, redirect: "follow" });
+  if (generation === cookieGeneration) ingestSetCookie(res.headers);
   const body = await res.text();
   if (
     res.status === 403 ||
@@ -305,11 +332,76 @@ async function fetchPage(url) {
     throw e;
   }
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return body;
+}
+
+function parseNextData(body) {
   const m = body.match(
-    /id="__NEXT_DATA__" type="application\/json"[^>]*>([\s\S]+?)<\/script>/,
+    /<script[^>]*\bid="__NEXT_DATA__"[^>]*>([\s\S]+?)<\/script>/,
   );
   if (!m) throw new Error("no __NEXT_DATA__ — layout changed or block page");
   return JSON.parse(m[1]);
+}
+
+// KP renamed the slot from initialState to initialReduxState; check both.
+const reduxState = (d) => {
+  const p = (d && d.props) || {};
+  return p.initialReduxState || p.initialState || {};
+};
+
+async function fetchPage(url) {
+  return parseNextData(await fetchHtml(url));
+}
+
+let warmupPromise = null;
+async function ensureWarmedUp() {
+  if (cookieJar.size > 0) return;
+  if (!warmupPromise)
+    warmupPromise = fetchHtml(KP_ORIGIN + "/")
+      .catch(() => {})
+      .finally(() => {
+        warmupPromise = null;
+      });
+  return warmupPromise;
+}
+async function refreshSession() {
+  cookieGeneration += 1;
+  cookieJar.clear();
+  await fetchHtml(KP_ORIGIN + "/");
+}
+
+// stripped = search slice missing or byId absent; an empty byId is a real
+// zero-result query and must not be retried as a block.
+async function fetchSearch(url) {
+  await ensureWarmedUp();
+  let s = reduxState(await fetchPage(url)).search;
+  if (!s || !s.byId) {
+    await sleep(150);
+    s = reduxState(await fetchPage(url)).search;
+  }
+  if (!s || !s.byId) {
+    await refreshSession();
+    s = reduxState(await fetchPage(url)).search;
+  }
+  if (!s || !s.byId) {
+    const e = new Error("KP stripped page persisted after session refresh");
+    e.antiBot = true;
+    throw e;
+  }
+  return s;
+}
+
+async function adDescription(url) {
+  await ensureWarmedUp();
+  for (let i = 0; i < 3; i++) {
+    const st = reduxState(await fetchPage(url));
+    const byId = st.ad && st.ad.byId;
+    const ad = byId && byId[Object.keys(byId)[0]];
+    if (ad) return stripHtml(ad.description);
+    if (i === 0) await sleep(150);
+    else if (i === 1) await refreshSession();
+  }
+  return "";
 }
 
 function searchUrl(w) {
@@ -317,6 +409,13 @@ function searchUrl(w) {
   const u = new URL("https://www.kupujemprodajem.com/pretraga");
   if (w.keywords) u.searchParams.set("keywords", w.keywords);
   if (w.categoryId) u.searchParams.set("categoryId", String(w.categoryId));
+  if (w.groupId) u.searchParams.set("groupId", String(w.groupId));
+  if (w.priceFrom != null) u.searchParams.set("priceFrom", String(w.priceFrom));
+  if (w.priceTo != null) u.searchParams.set("priceTo", String(w.priceTo));
+  if (w.currency) u.searchParams.set("currency", w.currency);
+  for (const c of [].concat(w.condition || []))
+    u.searchParams.append("condition", c);
+  if (w.keywordsScope) u.searchParams.set("keywordsScope", w.keywordsScope);
   return u.toString();
 }
 
@@ -342,11 +441,7 @@ async function main() {
       const url = searchUrl({ ...w, keywords: kw });
       log(`scanning ${w.name} [${kw}]: ${url}`);
       try {
-        const data = await fetchPage(url);
-        const s =
-          data.props &&
-          data.props.initialReduxState &&
-          data.props.initialReduxState.search;
+        const s = await fetchSearch(url);
         const page =
           s && s.byId ? s.adsIds.map((id) => s.byId[id]).filter(Boolean) : [];
         if (s && s.total != null) total = Math.max(total || 0, s.total);
@@ -453,8 +548,26 @@ async function main() {
           location: ad.location || ad.locationName || "?",
           posted: ad.postedDesc || ad.postedRaw || "?",
           views: ad.viewCount || "?",
+          favorites: ad.favoriteCount ?? null,
+          fixedPrice: ad.isPriceFixed === true,
+          exchange: ad.isExchange === true,
+          seller:
+            ad.user && typeof ad.user === "object"
+              ? {
+                  name: ad.user.username || null,
+                  reviewsPos: ad.user.reviewsPositive ?? null,
+                  reviewsNeg: ad.user.reviewsNegative ?? null,
+                  verified:
+                    ad.user.hasUserVerifiedBankAccount === true ||
+                    ad.user.hasCompanyVerifiedBankAccount === true,
+                  activeAds: ad.user.userActiveAdCount ?? null,
+                }
+              : null,
           url: "https://www.kupujemprodajem.com" + (ad.adUrl || `/oglas/${id}`),
         };
+        // high-volume sellers are usually dealers even without a price-list desc
+        if (f.seller && (f.seller.activeAds || 0) >= 30)
+          f.seller.dealerLikely = true;
         // description verification — headline price is often bait; real prices live in the ad body
         try {
           const desc = await adDescription(f.url);
@@ -584,4 +697,6 @@ module.exports = {
   adDescription,
   classifyItem,
   modelKey,
+  fetchSearch,
+  searchUrl,
 };

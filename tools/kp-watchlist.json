@@ -1,5 +1,5 @@
 {
-  "comment": "KP deal watchlist. Each watch scans each keyword as its own /pretraga query (KP has no OR). rule: 'belowMedianPct' = flag ads below median*pct of the same query/KP group; 'underPrice' = fixed ceiling (priceCurrency eur|rsd). goodConditionsOnly excludes neispravno/za delove. Edit freely — scanner reads this every run.",
+  "comment": "KP deal watchlist. Each watch scans each keyword as its own /pretraga query (KP has no OR). rule: 'belowMedianPct' = flag ads below median*pct of the SAME MODEL bucket (modelPatterns/groupName), never the raw query; 'underPrice' = fixed ceiling (priceCurrency eur|rsd). goodConditionsOnly excludes neispravno/za delove/locked. Parts, services, WTB and lot ads are auto-classified and never flagged nor counted in medians. allowQueryMedian:true re-enables the old whole-query fallback.",
   "eurToRsd": 117,
   "delayBetweenRequestsMs": [4000, 9000],
   "maxFlagsPerWatch": 8,
@@ -8,6 +8,9 @@
       "name": "iPhone",
       "keywords": ["iphone 15", "iphone 16", "iphone 17"],
       "categoryId": 23,
+      "modelPatterns": [
+        "iphone ?1[3-7]( ?(pro ?max|promax|pro|plus|air|mini|e))?"
+      ],
       "rule": { "belowMedianPct": 0.5 },
       "goodConditionsOnly": true
     },
@@ -15,6 +18,10 @@
       "name": "Laptopovi ThinkPad/MacBook",
       "keywords": ["thinkpad", "macbook"],
       "categoryId": 1221,
+      "modelPatterns": [
+        "thinkpad ?[a-z]?\\d{3}[a-z]*",
+        "macbook ?(air|pro)? ?m?\\d?"
+      ],
       "rule": { "belowMedianPct": 0.5 },
       "goodConditionsOnly": true
     },
@@ -22,6 +29,12 @@
       "name": "Graficke kartice",
       "keywords": ["rtx", "radeon rx"],
       "categoryId": 10,
+      "modelPatterns": [
+        "rtx ?\\d{4} ?(ti|super)?",
+        "gtx ?1?\\d{3,4} ?(ti|super)?",
+        "rx ?\\d{4} ?(xt|xtx)?",
+        "arc ?[ab]\\d{3}"
+      ],
       "rule": { "belowMedianPct": 0.5 },
       "goodConditionsOnly": true
     },
@@ -29,6 +42,13 @@
       "name": "Konzole PS5/Xbox",
       "keywords": ["ps5", "xbox series"],
       "categoryId": 1036,
+      "exclude": "\\b(fc ?2\\d|fifa|nba ?2k|gta|mortal kombat|ufc|wwe|call of duty|fortnite|minecraft|igra za|igrice|igrica|dvd|blu-?ray)\\b",
+      "modelPatterns": [
+        "ps5 ?(slim|pro|digital)?",
+        "playstation ?5 ?(slim|pro|digital)?",
+        "xbox ?series ?[sx]",
+        "xbox ?one ?[sx]?"
+      ],
       "rule": { "belowMedianPct": 0.5 },
       "goodConditionsOnly": true
     },
@@ -36,6 +56,16 @@
       "name": "Bicikli markirani",
       "keywords": ["trek bicikl", "giant bicikl", "specialized", "cube bicikl"],
       "categoryId": 912,
+      "exclude": "\\b(trekking|trotinet|skuter|kaciga|sajla|tocak|točak|felna|sedište|sediste)\\b",
+      "modelPatterns": [
+        "trek ?(?!king)[a-z]+ ?\\d*",
+        "giant ?[a-z]+ ?\\d*",
+        "specialized ?[a-z]+ ?\\d*",
+        "cube ?[a-z]+ ?\\d*",
+        "scott ?[a-z]+ ?\\d*",
+        "merida ?[a-z]+ ?\\d*",
+        "cannondale ?[a-z]+ ?\\d*"
+      ],
       "rule": { "belowMedianPct": 0.5 },
       "goodConditionsOnly": true
     },
@@ -49,6 +79,13 @@
         "pisaca masina"
       ],
       "categoryId": 186,
+      "modelPatterns": [
+        "kasetofon ?\\w*",
+        "magnetofon ?\\w*",
+        "gramm?ofon ?\\w*",
+        "radio ?\\w*",
+        "pisaća mašina|pisaca masina ?\\w*"
+      ],
       "rule": { "underPrice": 80, "priceCurrency": "eur" },
       "goodConditionsOnly": false
     },
@@ -56,6 +93,33 @@
       "name": "Muzicki instrumenti",
       "keywords": ["sintisajzer", "synthesizer", "gitara", "pojacalo"],
       "categoryId": 22,
+      "exclude": "\\b(torba|torbe|stalak|drzac|držač|trzala|trzalice|kapo|osigurac|osigurač|dioda|modul)\\b",
+      "modelPatterns": [
+        "casio ?(ct|ctk|lk|sa|mz|px|wk)-? ?\\w+",
+        "yamaha ?(psr|pss|np|dgx|motif|modx|p|ypt)-? ?\\w+",
+        "korg ?\\w+ ?\\d*",
+        "behringer ?\\w+ ?\\d*",
+        "roland ?\\w+ ?\\d*",
+        "moog ?\\w+",
+        "arturia ?\\w+",
+        "alesis ?\\w+",
+        "novation ?\\w+",
+        "akai ?\\w+",
+        "fender ?\\w+",
+        "ibanez ?\\w+",
+        "gibson ?\\w+",
+        "epiphone ?\\w+",
+        "squier ?\\w+",
+        "cort ?\\w+",
+        "jackson ?\\w+",
+        "marshall ?\\w+",
+        "boss ?[a-z]+-?\\d*",
+        "vox ?\\w+",
+        "orange ?\\w+",
+        "(elektricna|električna|akusticna|akustična|klasicna|klasična|bas|bass|dečja|decja) ?gitara ?\\w*",
+        "gitara ?\\w*",
+        "pojacalo|pojačalo ?\\w*"
+      ],
       "rule": { "belowMedianPct": 0.5 },
       "goodConditionsOnly": true
     },
@@ -63,6 +127,14 @@
       "name": "Foto analog/objektivi",
       "keywords": ["analogni foto", "zenit", "praktica", "minolta", "pentax"],
       "categoryId": 16,
+      "modelPatterns": [
+        "zenit ?\\w*",
+        "praktica ?\\w*",
+        "minolta ?\\w*",
+        "pentax ?\\w*",
+        "canon ?\\w*",
+        "nikon ?\\w*"
+      ],
       "rule": { "underPrice": 60, "priceCurrency": "eur" },
       "goodConditionsOnly": false
     },
@@ -70,6 +142,12 @@
       "name": "Satovi",
       "keywords": ["seiko", "omega sat", "swatch", "casio vintage"],
       "categoryId": 2755,
+      "modelPatterns": [
+        "seiko ?\\w*",
+        "casio ?\\w*",
+        "swatch ?\\w*",
+        "omega ?\\w*"
+      ],
       "rule": { "underPrice": 50, "priceCurrency": "eur" },
       "goodConditionsOnly": false
     }

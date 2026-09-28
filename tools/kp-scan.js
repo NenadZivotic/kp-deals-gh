@@ -56,6 +56,172 @@ const isGoodCondition = (ad) => {
   const c = String(ad.condition || "").toLowerCase();
   return !BAD_CONDITIONS.some((b) => c.includes(b));
 };
+
+// ---- item-kind classification ----------------------------------------------
+// A "ventilator za graficku" ad must never enter the whole-GPU median pool and
+// must never be flagged as a cheap GPU. Title is the primary signal; the
+// description (when fetched for a flagged ad) can demote a false positive.
+const WTB_WORDS = ["kupujem", "trazim", "tražim", "otkup", "razmena", "menjam"];
+const SERVICE_WORDS = [
+  "popravka",
+  "popravku",
+  "servis",
+  "servisiranje",
+  "reballing",
+  "reparacija",
+  "diagnostika",
+  "cipovanje",
+  "čipovanje",
+  "otkljucavanje",
+  "otključavanje",
+  "polovna dela",
+  "dijagnostika",
+];
+const LOCKED_WORDS = [
+  "icloud",
+  "zakljucan",
+  "zaključan",
+  "crna lista",
+  "crnilista",
+  "mdm",
+  "frp lock",
+  "sim lock",
+  "simlock",
+  "find my iphone",
+  "blokiran imei",
+];
+const PART_WORDS = [
+  "ventilator",
+  "hladnjak",
+  "cooler",
+  "kuler",
+  "kuciste",
+  "kućište",
+  "riser",
+  "rajzer",
+  "braket",
+  "nosac",
+  "nosač",
+  "maska",
+  "poklopac",
+  "kutija",
+  "futrola",
+  "torbica",
+  "zastit",
+  "zaštit",
+  "staklo za",
+  "folija",
+  "kabl",
+  "punjac",
+  "punjač",
+  "adapter",
+  "baterij",
+  "ekran za",
+  "matrica",
+  "tipkovnica",
+  "delovi za",
+  "rezervni del",
+  "kais",
+  "kaiš",
+  "narukvica",
+  "kalup",
+  "slot",
+  "backplate",
+  "dioda",
+  "kondenzator",
+  "termalna pasta",
+  "stalak",
+  "postolje",
+  "drzac",
+  "držač",
+  "torba",
+  "konektor",
+  "port ",
+  " cip ",
+  " chip",
+  "pcb",
+  "ploca",
+  "ploča",
+  "modul",
+  "traka",
+  "ciscenje",
+  "čišćenje",
+  "komplet za",
+  "kapak",
+  "mrezica",
+  "mrežica",
+  "kalem",
+  " stand",
+  "led osvetljenje",
+  "sajla",
+  "kaciga",
+];
+const DIGITAL_WORDS = [
+  "gift card",
+  "giftcard",
+  "psn",
+  "ps plus",
+  "playstation plus",
+  "dopune",
+  "dopuna",
+  "wallet",
+  "pretplata",
+  "aktivacija",
+  "game pass",
+  "gamepass",
+  " nalog",
+  " account",
+  " kljuc ",
+  " ključ ",
+  " key ",
+  "v-bucks",
+  "robux",
+];
+const LOT_WORDS = [
+  "za delove",
+  "za rezervne delove",
+  "partsku",
+  "komplet delova",
+  "lot oglasa",
+];
+
+function classifyItem(name, desc, watch) {
+  const title = " " + String(name || "").toLowerCase() + " ";
+  const all = title + " " + String(desc || "").toLowerCase();
+  if (watch && watch.exclude) {
+    try {
+      if (new RegExp(watch.exclude, "i").test(title)) return "excluded";
+    } catch (_) {}
+  }
+  if (WTB_WORDS.some((w) => title.includes(w))) return "wtb";
+  if (SERVICE_WORDS.some((w) => title.includes(w))) return "service";
+  if (DIGITAL_WORDS.some((w) => title.includes(w))) return "digital";
+  if (LOT_WORDS.some((w) => all.includes(w))) return "lot";
+  if (LOCKED_WORDS.some((w) => all.includes(w))) return "locked";
+  if (PART_WORDS.some((w) => title.includes(w))) return "part";
+  return "item";
+}
+
+// Bucket key for median comparison — same MODEL, not same query. A watch can
+// declare modelPatterns (regexes); first match wins and is normalized. Fallback:
+// KP's own groupName, then generic "brand + numeric model token" extraction.
+function modelKey(name, watch) {
+  const title = " " + String(name || "").toLowerCase() + " ";
+  const pats =
+    watch && Array.isArray(watch.modelPatterns) ? watch.modelPatterns : [];
+  for (const p of pats) {
+    try {
+      const m = title.match(new RegExp(p, "i"));
+      if (m) return m[0].replace(/\s+/g, " ").trim();
+    } catch (_) {}
+  }
+  // generic "brand + numeric token" extraction only when the watch declared no
+  // patterns — in a model-driven watch a leftover title is safer under the
+  // KP groupName bucket than under a junk token like "bicikl 26"
+  if (pats.length) return null;
+  const m = title.match(/([a-zšđčćž]{3,})\s*([a-z]{0,5}\d{2,4}[a-z]{0,4})/i);
+  return m ? (m[1] + " " + m[2]).trim() : null;
+}
 const eurPrice = (ad, rate) => {
   const n = Number(ad.priceNumber ?? ad.price);
   if (!Number.isFinite(n) || n <= 0) return null;
@@ -195,20 +361,27 @@ async function main() {
       total,
     });
 
-    // medians: per KP groupName when a bucket has enough samples (a query mixes models),
-    // else the whole query's median.
+    // medians: same-item pools only. Parts, services, WTB and locked ads are
+    // excluded so a "ventilator za rtx" listing cannot drag the GPU median.
+    // Bucket = extracted model key (per-watch modelPatterns, else KP groupName,
+    // else generic brand+model token). A bucket needs >=4 samples.
     const groups = {};
+    const kindCache = {};
     for (const ad of ads) {
-      const g = ad.groupName || "_";
+      const kind = classifyItem(ad.name, null, w);
+      kindCache[ad.id] = kind;
+      if (kind !== "item") continue;
+      const g = modelKey(ad.name, w) || ad.groupName || "_";
       const p = eurPrice(ad, rate);
       if (p != null) (groups[g] = groups[g] || []).push(p);
     }
     const groupMed = {};
     for (const g of Object.keys(groups))
       if (groups[g].length >= 4) groupMed[g] = median(groups[g]);
-    const queryMed = median(
-      ads.map((a) => eurPrice(a, rate)).filter(Number.isFinite),
-    );
+    const queryMed =
+      w.allowQueryMedian === true
+        ? median(ads.map((a) => eurPrice(a, rate)).filter(Number.isFinite))
+        : null;
 
     for (const ad of ads) {
       const id = String(ad.id);
@@ -218,17 +391,31 @@ async function main() {
       if (priceEur == null) continue;
       if (w.goodConditionsOnly !== false && !isGoodCondition(ad)) continue;
 
-      const med = groupMed[ad.groupName || "_"] || queryMed;
+      const kind = kindCache[ad.id] || classifyItem(ad.name, null, w);
+      const mk = modelKey(ad.name, w) || ad.groupName || "_";
+      const med = groupMed[mk] || queryMed;
       let flag = null;
-      if (w.rule && w.rule.belowMedianPct != null && med != null) {
+      // belowMedian only makes sense for a whole item vs its same-model bucket.
+      // Parts/services/wtb/locked/lots skip the comparison entirely — they were
+      // also excluded from the median pool above.
+      if (
+        kind === "item" &&
+        w.rule &&
+        w.rule.belowMedianPct != null &&
+        med != null
+      ) {
         const off = 1 - priceEur / med;
         if (priceEur <= med * w.rule.belowMedianPct)
           flag =
             off > 0.8
-              ? `⚠ ${Math.round(off * 100)}% ispod medijana — moguca prevara/decoy (~${med.toFixed(0)}€ ${ad.groupName || "grupa"})`
-              : `${Math.round(off * 100)}% ispod medijana (~${med.toFixed(0)}€ ${ad.groupName || "grupa"})`;
-      }
-      if (!flag && w.rule && w.rule.underPrice != null) {
+              ? `⚠ ${Math.round(off * 100)}% ispod medijana — moguca prevara/decoy (~${med.toFixed(0)}€ ${mk})`
+              : `${Math.round(off * 100)}% ispod medijana (~${med.toFixed(0)}€ ${mk})`;
+      } else if (
+        !flag &&
+        (kind === "item" || w.flagNonItem === true) &&
+        w.rule &&
+        w.rule.underPrice != null
+      ) {
         const cur = (w.rule.priceCurrency || "eur").toLowerCase();
         const p = cur === "rsd" ? priceEur * rate : priceEur;
         if (p <= w.rule.underPrice)
@@ -239,6 +426,8 @@ async function main() {
           id,
           watch: w.name,
           name: ad.name,
+          kind,
+          model: mk === "_" ? null : mk,
           flag,
           flagClean: String(flag)
             .replace(/^⚠\s*/, "")
@@ -259,9 +448,18 @@ async function main() {
         // description verification — headline price is often bait; real prices live in the ad body
         try {
           const desc = await adDescription(f.url);
-          const ps = descPrices(desc, rate);
-          f.descPrices = ps;
-          if (ps.length >= 3) {
+          // re-classify with the description: title "RTX 3070" + body
+          // "prodajem ventilator sa 3070" is a part, not a deal.
+          const dKind = classifyItem(f.name, desc, w);
+          if (dKind !== "item" && kind === "item" && !w.flagNonItem) {
+            log(`  demoted ${id} (${f.name}) item -> ${dKind}`);
+            f = null;
+          }
+          const ps = f ? descPrices(desc, rate) : [];
+          if (f) f.descPrices = ps;
+          if (!f) {
+            // demoted by description — nothing else to verify
+          } else if (ps.length >= 3) {
             // dealer price-list ad: headline is bait for the cheapest/imaginary unit
             f.dealer = true;
             f.flag = `⚠ dealer cenovnik — ${ps.length} cena u opisu (${ps[0]}–${ps[ps.length - 1]}€); naslovna cena mamac`;
@@ -370,4 +568,10 @@ if (require.main === module)
     process.exit(1);
   });
 
-module.exports = { descPrices, stripHtml, adDescription };
+module.exports = {
+  descPrices,
+  stripHtml,
+  adDescription,
+  classifyItem,
+  modelKey,
+};

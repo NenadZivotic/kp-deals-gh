@@ -1,0 +1,49 @@
+name: KP Deals Scan
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # svakih 6 sati UTC
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install scanner deps
+        run: npm install --prefix tools
+
+      - name: Run KP scan
+        run: node tools/kp-scan.js
+        continue-on-error: true
+
+      - name: Notify Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node tools/notify-telegram.js
+
+      - name: Upload report artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kp-reports-${{ github.run_id }}
+          path: |
+            research/kp-deals.xlsx
+            research/kp-deals.md
+            research/kp-latest.json
+          if-no-files-found: ignore
+
+      - name: Commit state & reports back to repo
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "kp scan update [${{ github.run_id }}]"
+          file_pattern: 'research/*'
+          skip_checkout: false

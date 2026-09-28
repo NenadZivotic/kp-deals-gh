@@ -1,0 +1,77 @@
+{
+  "comment": "KP deal watchlist. Each watch scans each keyword as its own /pretraga query (KP has no OR). rule: 'belowMedianPct' = flag ads below median*pct of the same query/KP group; 'underPrice' = fixed ceiling (priceCurrency eur|rsd). goodConditionsOnly excludes neispravno/za delove. Edit freely — scanner reads this every run.",
+  "eurToRsd": 117,
+  "delayBetweenRequestsMs": [4000, 9000],
+  "maxFlagsPerWatch": 8,
+  "watches": [
+    {
+      "name": "iPhone",
+      "keywords": ["iphone 15", "iphone 16", "iphone 17"],
+      "categoryId": 23,
+      "rule": { "belowMedianPct": 0.5 },
+      "goodConditionsOnly": true
+    },
+    {
+      "name": "Laptopovi ThinkPad/MacBook",
+      "keywords": ["thinkpad", "macbook"],
+      "categoryId": 1221,
+      "rule": { "belowMedianPct": 0.5 },
+      "goodConditionsOnly": true
+    },
+    {
+      "name": "Graficke kartice",
+      "keywords": ["rtx", "radeon rx"],
+      "categoryId": 10,
+      "rule": { "belowMedianPct": 0.5 },
+      "goodConditionsOnly": true
+    },
+    {
+      "name": "Konzole PS5/Xbox",
+      "keywords": ["ps5", "xbox series"],
+      "categoryId": 1036,
+      "rule": { "belowMedianPct": 0.5 },
+      "goodConditionsOnly": true
+    },
+    {
+      "name": "Bicikli markirani",
+      "keywords": ["trek bicikl", "giant bicikl", "specialized", "cube bicikl"],
+      "categoryId": 912,
+      "rule": { "belowMedianPct": 0.5 },
+      "goodConditionsOnly": true
+    },
+    {
+      "name": "Starine - tehnika i audio",
+      "keywords": [
+        "kasetofon",
+        "magnetofon",
+        "grammofon",
+        "radio aparat",
+        "pisaca masina"
+      ],
+      "categoryId": 186,
+      "rule": { "underPrice": 80, "priceCurrency": "eur" },
+      "goodConditionsOnly": false
+    },
+    {
+      "name": "Muzicki instrumenti",
+      "keywords": ["sintisajzer", "synthesizer", "gitara", "pojacalo"],
+      "categoryId": 22,
+      "rule": { "belowMedianPct": 0.5 },
+      "goodConditionsOnly": true
+    },
+    {
+      "name": "Foto analog/objektivi",
+      "keywords": ["analogni foto", "zenit", "praktica", "minolta", "pentax"],
+      "categoryId": 16,
+      "rule": { "underPrice": 60, "priceCurrency": "eur" },
+      "goodConditionsOnly": false
+    },
+    {
+      "name": "Satovi",
+      "keywords": ["seiko", "omega sat", "swatch", "casio vintage"],
+      "categoryId": 2755,
+      "rule": { "underPrice": 50, "priceCurrency": "eur" },
+      "goodConditionsOnly": false
+    }
+  ]
+}

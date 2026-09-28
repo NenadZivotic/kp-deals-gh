@@ -1,0 +1,21 @@
+{
+  "v": 1,
+  "runId": "kp-report",
+  "agentId": "researcher",
+  "backlogId": "kp-report",
+  "title": "KP Deals — izveštaj",
+  "kind": "doc",
+  "summary": "Pregled jeftinih oglasa sa KupujemProdajem. Otvori index.html za tabelu u browseru ili preuzmi Excel.",
+  "files": [
+    {
+      "path": "index.html",
+      "bytes": 18497
+    },
+    {
+      "path": "kp-deals.md",
+      "bytes": 9277
+    }
+  ],
+  "howToUse": "Otvori index.html ili kp-deals.xlsx",
+  "notVerified": []
+}

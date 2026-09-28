@@ -1,7 +1,7 @@
 {
   "comment": "KP deal watchlist. Each watch scans each keyword as its own /pretraga query (KP has no OR). rule: 'belowMedianPct' = flag ads below median*pct of the SAME MODEL bucket (modelPatterns/groupName), never the raw query; 'underPrice' = fixed ceiling (priceCurrency eur|rsd). goodConditionsOnly excludes neispravno/za delove/locked. Parts, services, WTB and lot ads are auto-classified and never flagged nor counted in medians. allowQueryMedian:true re-enables the old whole-query fallback.",
   "eurToRsd": 117,
-  "delayBetweenRequestsMs": [4000, 9000],
+  "delayBetweenRequestsMs": [6000, 12000],
   "maxFlagsPerWatch": 8,
   "watches": [
     {

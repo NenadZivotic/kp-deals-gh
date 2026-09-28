@@ -38,6 +38,9 @@ function build() {
     "Cena",
     "≈EUR",
     "Popust",
+    "Vrsta",
+    "Model",
+    "Prodavac",
     "Stanje",
     "Lokacija",
     "Objavljeno",
@@ -55,6 +58,11 @@ function build() {
       f.price || "",
       Number.isFinite(f.priceEur) ? f.priceEur : null,
       f.flagClean || f.flag || "",
+      f.kind || "",
+      f.model || "",
+      f.seller && (f.seller.name || f.seller.activeAds != null)
+        ? `${f.seller.name || "?"} +${f.seller.reviewsPos ?? "?"}/-${f.seller.reviewsNeg ?? "?"}${f.seller.verified ? " ✓" : ""}${f.seller.dealerLikely ? " dealer?" : ""}`
+        : "",
       f.condition || "",
       f.location || "",
       f.posted || "",
@@ -71,6 +79,9 @@ function build() {
     { wch: 11 },
     { wch: 7 },
     { wch: 34 },
+    { wch: 10 },
+    { wch: 16 },
+    { wch: 26 },
     { wch: 18 },
     { wch: 14 },
     { wch: 14 },
@@ -87,7 +98,7 @@ function build() {
 
   // hyperlinks on the Link column + number format on EUR
   for (let r = 1; r < data.length; r++) {
-    const linkCell = XLSX.utils.encode_cell({ r, c: 9 });
+    const linkCell = XLSX.utils.encode_cell({ r, c: 12 });
     if (ws[linkCell] && ws[linkCell].v)
       ws[linkCell].l = { Target: ws[linkCell].v };
     const eurCell = XLSX.utils.encode_cell({ r, c: 4 });

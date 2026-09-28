@@ -1,0 +1,207 @@
+{
+  "scannedAt": "2026-09-28T08:03:27.100Z",
+  "watches": [
+    {
+      "name": "iPhone",
+      "queries": 3,
+      "fetched": 54,
+      "total": 1799
+    },
+    {
+      "name": "Laptopovi ThinkPad/MacBook",
+      "queries": 2,
+      "fetched": 60,
+      "total": 5464
+    },
+    {
+      "name": "Graficke kartice",
+      "queries": 2,
+      "fetched": 60,
+      "total": 20000
+    },
+    {
+      "name": "Konzole PS5/Xbox",
+      "queries": 2,
+      "fetched": 59,
+      "total": 8842
+    },
+    {
+      "name": "Bicikli markirani",
+      "queries": 4,
+      "fetched": 120,
+      "total": 148
+    },
+    {
+      "name": "Starine - tehnika i audio",
+      "queries": 5,
+      "fetched": 36,
+      "total": 30
+    },
+    {
+      "name": "Muzicki instrumenti",
+      "queries": 4,
+      "fetched": 120,
+      "total": 14231
+    },
+    {
+      "name": "Foto analog/objektivi",
+      "queries": 5,
+      "fetched": 150,
+      "total": 414
+    },
+    {
+      "name": "Satovi",
+      "queries": 4,
+      "fetched": 120,
+      "total": 1571
+    }
+  ],
+  "flagged": [
+    {
+      "id": "195685752",
+      "watch": "Laptopovi ThinkPad/MacBook",
+      "name": "Lenovo ThinkPad P53s i7-8665U /8 GB RAM / 256 GB SSD M2",
+      "kind": "item",
+      "model": "Laptopovi",
+      "flag": "66% ispod medijana (~503€ Laptopovi)",
+      "flagClean": "66% ispod medijana (~503€ Laptopovi)",
+      "seenAt": "2026-09-28T08:03:27.100Z",
+      "_score": 0.3383084577114428,
+      "price": "170 EUR",
+      "priceEur": 170,
+      "condition": "Korišćeno (polovno)",
+      "location": "Niš",
+      "posted": "pre 6 dana",
+      "views": "50",
+      "url": "https://www.kupujemprodajem.com/kompjuteri-laptop-i-tablet/laptopovi/lenovo-thinkpad-p53s-i7-8665u-8-gb-ram-256-gb-ssd-m2/oglas/195685752",
+      "descPrices": [],
+      "note": "cena potvrdjena u opisu"
+    },
+    {
+      "id": "195727368",
+      "watch": "Bicikli markirani",
+      "name": "Specialized Turbo Vado",
+      "kind": "item",
+      "model": "specialized turbo",
+      "flag": "71% ispod medijana (~2450€ specialized turbo)",
+      "flagClean": "71% ispod medijana (~2450€ specialized turbo)",
+      "seenAt": "2026-09-28T08:03:27.100Z",
+      "_score": 0.2857142857142857,
+      "price": "700 EUR",
+      "priceEur": 700,
+      "condition": "Korišćeno (polovno)",
+      "location": "Beograd",
+      "posted": "pre 4 dana",
+      "views": "19",
+      "url": "https://www.kupujemprodajem.com/bicikli/gradski/specialized-turbo-vado/oglas/195727368",
+      "descPrices": [],
+      "note": "cena potvrdjena u opisu"
+    },
+    {
+      "id": "137208359",
+      "watch": "Foto analog/objektivi",
+      "name": "-SMC Pentax-DA 18-55mm f/3.5-5.6 AL",
+      "kind": "item",
+      "model": "pentax",
+      "flag": "ispod praga 60 EUR",
+      "flagClean": "ispod praga 60 EUR",
+      "seenAt": "2026-09-28T08:03:27.100Z",
+      "_score": 0.8547008547008547,
+      "price": "5.000 RSD",
+      "priceEur": 43,
+      "condition": "Korišćeno (polovno)",
+      "location": "Niš",
+      "posted": "pre nedelju dana",
+      "views": "667",
+      "url": "https://www.kupujemprodajem.com/foto-aparati-i-kamere/objektivi-sociva-i-durbini/-smc-pentax-da-18-55mm-f-3-5-5-6-al/oglas/137208359",
+      "descPrices": [],
+      "note": "cena potvrdjena u opisu"
+    },
+    {
+      "id": "194798040",
+      "watch": "Foto analog/objektivi",
+      "name": "Praktica PLC2",
+      "kind": "item",
+      "model": "praktica plc2",
+      "flag": "ispod praga 60 EUR",
+      "flagClean": "ispod praga 60 EUR",
+      "seenAt": "2026-09-28T08:03:27.100Z",
+      "_score": 0.4166666666666667,
+      "price": "25 EUR",
+      "priceEur": 25,
+      "condition": "Korišćeno (polovno)",
+      "location": "Beograd",
+      "posted": "pre 3 nedelje",
+      "views": "30",
+      "url": "https://www.kupujemprodajem.com/foto-aparati-i-kamere/analogni-foto-aparati/praktica-plc2/oglas/194798040",
+      "descPrices": [],
+      "note": "cena potvrdjena u opisu"
+    },
+    {
+      "id": "195283949",
+      "watch": "Foto analog/objektivi",
+      "name": "Zenit fotoaparat Helios 44M",
+      "kind": "item",
+      "model": "zenit fotoaparat",
+      "flag": "ispod praga 60 EUR",
+      "flagClean": "ispod praga 60 EUR",
+      "seenAt": "2026-09-28T08:03:27.100Z",
+      "_score": 0.75,
+      "price": "45 EUR",
+      "priceEur": 45,
+      "condition": "Korišćeno (polovno)",
+      "location": "Loznica",
+      "posted": "pre 2 nedelje",
+      "views": "15",
+      "url": "https://www.kupujemprodajem.com/foto-aparati-i-kamere/analogni-foto-aparati/zenit-fotoaparat-helios-44m/oglas/195283949",
+      "descPrices": [],
+      "note": "cena potvrdjena u opisu"
+    },
+    {
+      "id": "177201924",
+      "watch": "Satovi",
+      "name": "Swatch satovi!",
+      "kind": "item",
+      "model": "swatch satovi",
+      "flag": "ispod praga 50 EUR",
+      "flagClean": "ispod praga 50 EUR",
+      "seenAt": "2026-09-28T08:03:27.100Z",
+      "_score": 0.8064516129032258,
+      "price": "2.500 RSD",
+      "priceEur": 21,
+      "condition": "Korišćeno (polovno)",
+      "location": "Beograd",
+      "posted": "pre nedelju dana",
+      "views": "604",
+      "url": "https://www.kupujemprodajem.com/rucni-i-dzepni-satovi/rucni-satovi-decji/swatch-satovi/oglas/177201924",
+      "descPrices": [
+        21
+      ],
+      "note": "cena potvrdjena u opisu"
+    },
+    {
+      "id": "185886729",
+      "watch": "Satovi",
+      "name": "Swatch Irony Aluminium Chrono satovi sa datumom!",
+      "kind": "item",
+      "model": "swatch irony",
+      "flag": "25% ispod medijana (~43€) — cena potvrdjena u opisu",
+      "flagClean": "25% ispod medijana (~43€) — cena potvrdjena u opisu",
+      "seenAt": "2026-09-28T08:03:27.100Z",
+      "_score": 0.7487999999999999,
+      "price": "5.500 RSD",
+      "priceEur": 32,
+      "condition": "Korišćeno (polovno)",
+      "location": "Beograd",
+      "posted": "pre 5 dana",
+      "views": "1.702",
+      "url": "https://www.kupujemprodajem.com/rucni-i-dzepni-satovi/rucni-satovi-brendovi-muski/swatch-irony-aluminium-chrono-satovi-sa-datumom/oglas/185886729",
+      "descPrices": [
+        32,
+        47
+      ],
+      "note": "naslovna 47€ → opis ~32€"
+    }
+  ],
+  "errors": []
+}

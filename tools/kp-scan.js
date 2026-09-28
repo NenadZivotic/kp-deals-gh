@@ -371,7 +371,10 @@ async function refreshSession() {
 }
 
 // stripped = search slice missing or byId absent; an empty byId is a real
-// zero-result query and must not be retried as a block.
+// zero-result query and must not be retried as a block. EXCEPT: KP also
+// answers soft rate-limits with a structurally valid but empty search page
+// (byId={}, total=0) instead of a 403. A legit-empty page is retried once
+// after a longer pause and flagged _emptySuspect so the report can warn.
 async function fetchSearch(url) {
   await ensureWarmedUp();
   let s = reduxState(await fetchPage(url)).search;
@@ -387,6 +390,12 @@ async function fetchSearch(url) {
     const e = new Error("KP stripped page persisted after session refresh");
     e.antiBot = true;
     throw e;
+  }
+  if (!s.total && !Object.keys(s.byId).length) {
+    await sleep(jitter([3000, 6000]));
+    const again = reduxState(await fetchPage(url)).search;
+    if (again && again.byId) s = again;
+    if (!s.total && !Object.keys(s.byId).length) s._emptySuspect = true;
   }
   return s;
 }
@@ -430,6 +439,10 @@ async function main() {
     ? cfg.delayBetweenRequestsMs
     : [4000, 9000];
   const seen = readJson(SEEN_FILE, { ids: {}, scannedAt: null });
+  const prev = readJson(LATEST_FILE, null);
+  const prevTotals = {};
+  if (prev && Array.isArray(prev.watches))
+    for (const pw of prev.watches) prevTotals[pw.name] = pw.total;
   const now = new Date().toISOString();
   const report = { scannedAt: now, watches: [], flagged: [], errors: [] };
 
@@ -437,11 +450,13 @@ async function main() {
     const queries = Array.isArray(w.keywords) ? w.keywords : [w.keywords];
     const byId = {};
     let total = null;
+    let sawSuspect = false;
     for (const kw of queries) {
       const url = searchUrl({ ...w, keywords: kw });
       log(`scanning ${w.name} [${kw}]: ${url}`);
       try {
         const s = await fetchSearch(url);
+        if (s._emptySuspect) sawSuspect = true;
         const page =
           s && s.byId ? s.adsIds.map((id) => s.byId[id]).filter(Boolean) : [];
         if (s && s.total != null) total = Math.max(total || 0, s.total);
@@ -459,12 +474,24 @@ async function main() {
       await sleep(jitter(delay)); // pacing — polite client
     }
     const ads = Object.values(byId);
+    const suspect =
+      (ads.length === 0 && (prevTotals[w.name] || 0) > 0) || sawSuspect;
     report.watches.push({
       name: w.name,
       queries: queries.length,
       fetched: ads.length,
       total,
+      ...(suspect ? { suspectEmpty: true } : {}),
     });
+    if (suspect) {
+      console.error(
+        `[kp] ${w.name}: 0 oglasa, prošli scan je imao ${prevTotals[w.name]} — moguć soft-block`,
+      );
+      report.errors.push({
+        watch: w.name,
+        error: `empty result (prethodno ${prevTotals[w.name]}) — verovatno soft-block`,
+      });
+    }
 
     // medians: same-item pools only. Parts, services, WTB and locked ads are
     // excluded so a "ventilator za rtx" listing cannot drag the GPU median.

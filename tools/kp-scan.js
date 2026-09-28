@@ -446,7 +446,21 @@ async function main() {
   const now = new Date().toISOString();
   const report = { scannedAt: now, watches: [], flagged: [], errors: [] };
 
-  for (const w of cfg.watches) {
+  // --only=<name> scans a single watch — quick manual tests without burning
+  // the request budget / tripping the soft-block for all 9 watches.
+  const onlyIdx = process.argv.findIndex((a) => a === "--only");
+  const only = onlyIdx >= 0 ? process.argv[onlyIdx + 1] : null;
+  const watches = only
+    ? cfg.watches.filter((w) =>
+        w.name.toLowerCase().includes(only.toLowerCase()),
+      )
+    : cfg.watches;
+  if (only && !watches.length) {
+    console.error(`[kp] --only "${only}": nema takvog watch-a`);
+    process.exit(1);
+  }
+
+  for (const w of watches) {
     const queries = Array.isArray(w.keywords) ? w.keywords : [w.keywords];
     const byId = {};
     let total = null;

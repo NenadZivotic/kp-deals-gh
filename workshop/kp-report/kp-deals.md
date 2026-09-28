@@ -62,3 +62,22 @@
   https://www.kupujemprodajem.com/foto-aparati-i-kamere/analogni-foto-aparati/analogni-foto-aparat-nikon-f565-neispitan/oglas/87591409
 - **[Foto analog/objektivi] Zenit E- funkcionalno telo fotoaparata** — 10 EUR (~10€) · ispod praga 60 EUR · Korišćeno (polovno) · Smederevska Palanka · pre 4 dana
   https://www.kupujemprodajem.com/foto-aparati-i-kamere/analogni-foto-aparati/zenit-e-funkcionalno-telo-fotoaparata/oglas/180839456
+
+## Scan 2026-09-28 10:24 — 8 novih (ukupno pogodaka: 46)
+
+- **[Satovi] Omega swatch sat** — 2.500 RSD (~21€) · ispod praga 50 EUR · Korišćeno (polovno) · Beograd · pre 2 nedelje
+  https://www.kupujemprodajem.com/rucni-i-dzepni-satovi/rucni-satovi-kaisevi/omega-swatch-sat/oglas/195251558
+- **[Satovi] Casio Vintage LA670WE** — 3.000 RSD (~26€) · ispod praga 50 EUR · Korišćeno (polovno) · Majur (Šabac) · pre nedelju dana
+  https://www.kupujemprodajem.com/rucni-i-dzepni-satovi/rucni-satovi-brendovi-zenski/casio-vintage-la670we/oglas/189175447
+- **[Satovi] Swatch satovi - razno!** — 3.200 RSD (~27€) · ispod praga 50 EUR · Korišćeno (polovno) · Beograd · pre nedelju dana
+  https://www.kupujemprodajem.com/rucni-i-dzepni-satovi/rucni-satovi-decji/swatch-satovi-razno/oglas/171319959
+- **[Satovi] Casio Vintage CA-53WF-3B** — 3.300 RSD (~28€) · ispod praga 50 EUR · Novo · Beograd · pre nedelju dana
+  https://www.kupujemprodajem.com/rucni-i-dzepni-satovi/rucni-satovi-brendovi-muski/casio-vintage-ca-53wf-3b/oglas/167506929
+- **[Satovi] Casio Vintage CA-53WF-8B** — 3.300 RSD (~28€) · ispod praga 50 EUR · Novo · Beograd · pre nedelju dana
+  https://www.kupujemprodajem.com/rucni-i-dzepni-satovi/rucni-satovi-brendovi-muski/casio-vintage-ca-53wf-8b/oglas/167506950
+- **[Satovi] Swatch satovi - razno!** — 3.500 RSD (~30€) · ispod praga 50 EUR · Korišćeno (polovno) · Beograd · pre nedelju dana
+  https://www.kupujemprodajem.com/rucni-i-dzepni-satovi/rucni-satovi-decji/swatch-satovi-razno/oglas/171247091
+- **[Satovi] Swatch Scuba satovi - razno!** — 3.500 RSD (~30€) · ispod praga 50 EUR · Korišćeno (polovno) · Beograd · juče
+  https://www.kupujemprodajem.com/rucni-i-dzepni-satovi/rucni-satovi-decji/swatch-scuba-satovi-razno/oglas/194950149
+- **[Satovi] Katalog satova Bonellos fuer Swatch-Uhren International 1994** — 3.600 RSD (~31€) · ispod praga 50 EUR · Korišćeno (polovno) · Šabac · pre 5 dana
+  https://www.kupujemprodajem.com/rucni-i-dzepni-satovi/rucni-satovi-ostalo/katalog-satova-bonellos-fuer-swatch-uhren-international-1994/oglas/132428469
